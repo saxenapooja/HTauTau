@@ -1,0 +1,2 @@
+ALL_PACKAGES += $(patsubst src/%,%,src/TauAnalysis/CandidateTools)
+subdirs_src_TauAnalysis_CandidateTools := src_TauAnalysis_CandidateTools_src src_TauAnalysis_CandidateTools_bin src_TauAnalysis_CandidateTools_doc src_TauAnalysis_CandidateTools_test src_TauAnalysis_CandidateTools_plugins src_TauAnalysis_CandidateTools_python src_TauAnalysis_CandidateTools_interface
