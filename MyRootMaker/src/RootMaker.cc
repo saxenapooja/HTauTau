@@ -610,7 +610,7 @@ void RootMaker::beginJob(){
   tree->Branch("tau_L1trigger_match", tau_L1trigger_match, "tau_L1trigger_match[tau_count]/O");
   tree->Branch("tau_signalPFChargedHadrCands_size", tau_signalPFChargedHadrCands_size, "tau_signalPFChargedHadrCands_size[tau_count]/i");
   tree->Branch("tau_signalPFGammaCands_size", tau_signalPFGammaCands_size, "tau_signalPFGammaCands_size[tau_count]/i");
-  tree->Branch("tau_signalPFGammaCands_size", tau_signalPFGammaCands_size, "tau_signalPFGammaCands_size[tau_count]/C");
+  tree->Branch("tau_genTaudecayMode", tau_genTaudecayMode, "tau_genTaudecayMode[tau_count]/C");
   // ditau study
   tree->Branch("ditau_Index",&ditau_Index,"ditau_Index/i");
   tree->Branch("ditau_leg1_index", ditau_leg1_index,"ditau_leg1_index[ditau_Index]/i");
@@ -2705,7 +2705,7 @@ int RootMaker::AddTaus(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  tau_bycombinedisolationdeltabetacorrraw3hits[tau_count] = (*Taus)[i].tauID("byCombinedIsolationDeltaBetaCorrRaw3Hits");
 	  tau_signalPFChargedHadrCands_size[tau_count]            = (*Taus)[i].signalPFChargedHadrCands().size(); 	  
 	  tau_signalPFGammaCands_size[tau_count]	          = (*Taus)[i].signalPFGammaCands().size();
-	  tau_genTaudecayMode[tau_count]                          = JetMCTagUtils::genTauDecayMode(*((*Taus)[i].genJet()));
+	  tau_genTaudecayMode[tau_count]                          = JetMCTagUtils::genTauDecayMode(*((*Taus)[i].genJet())); //added on Jul 27
 
 	  SignedImpactParameter3D signed_ip3D;
 	  // std::vector<reco::PFCandidate> leadPFChargedHadrCand_;
