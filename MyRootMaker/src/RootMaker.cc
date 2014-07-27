@@ -1,4 +1,4 @@
-#include "MyRootMaker/MyRootMaker/interface/RootMaker.h"
+ #include "MyRootMaker/MyRootMaker/interface/RootMaker.h"
 #include "CommonTools/Statistics/interface/ChiSquaredProbability.h"
 //#include "AnalysisDataFormats/TauAnalysis/interface/CompositePtrCandidateT1T2MEtFwd.h"
 //#include "TauAnalysis/CandidateTools/interface/NSVfitAlgorithmBase.h"
@@ -19,6 +19,7 @@
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
 #include "RecoVertex/VertexPrimitives/interface/TransientVertex.h"
+#include "PhysicsTools/JetMCUtils/interface/JetMCTag.h"
 
 using namespace reco;
 
@@ -607,8 +608,9 @@ void RootMaker::beginJob(){
   tree->Branch("tau_bycombinedisolationdeltabetacorrraw3hits", tau_bycombinedisolationdeltabetacorrraw3hits, "tau_bycombinedisolationdeltabetacorrraw3hits[tau_count]/F");
   tree->Branch("tau_trigger", tau_trigger, "tau_trigger[tau_count]/i");
   tree->Branch("tau_L1trigger_match", tau_L1trigger_match, "tau_L1trigger_match[tau_count]/O");
-
-
+  tree->Branch("tau_signalPFChargedHadrCands_size", tau_signalPFChargedHadrCands_size, "tau_signalPFChargedHadrCands_size[tau_count]/i");
+  tree->Branch("tau_signalPFGammaCands_size", tau_signalPFGammaCands_size, "tau_signalPFGammaCands_size[tau_count]/i");
+  tree->Branch("tau_signalPFGammaCands_size", tau_signalPFGammaCands_size, "tau_signalPFGammaCands_size[tau_count]/C");
   // ditau study
   tree->Branch("ditau_Index",&ditau_Index,"ditau_Index/i");
   tree->Branch("ditau_leg1_index", ditau_leg1_index,"ditau_leg1_index[ditau_Index]/i");
@@ -2668,12 +2670,11 @@ int RootMaker::AddTaus(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  
 	  // taus with pT>20 and decay mode finding are good taus.
 	  if((*Taus)[i].pt() > 20 && (*Taus)[i].tauID("decayModeFinding") > 0.5) ++nGoodTaus;
+	  tauIndexSelection.push_back(i);
 	  
 	  // int numtrack = (*Taus)[i].signalPFChargedHadrCands().size();
 	  // PFTauRef tauCandidate(Taus, i);
 	  // if((*hpsPFTauDiscriminationByLooseIsolation)[tauCandidate] < 0.5 || !(numtrack == 3 || numtrack == 1)) continue;
-
-	  tauIndexSelection.push_back(i);
 
 	  tau_dishps[tau_count] = 0;
 	  for(unsigned n = 0 ; n < cTauDiscriminators.size() ; n++)
@@ -2683,31 +2684,33 @@ int RootMaker::AddTaus(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	      }
 	    }
 	  
-	  tau_e[tau_count] = (*Taus)[i].energy();
-	  tau_px[tau_count] = (*Taus)[i].px();
-	  tau_py[tau_count] = (*Taus)[i].py();
-	  tau_pz[tau_count] = (*Taus)[i].pz();
-	  tau_emfraction[tau_count] = (*Taus)[i].emFraction();
-	  tau_newemfraction[tau_count] = newEmFraction(&(*Taus)[i]);
-	  tau_hcaltotoverplead[tau_count] = (*Taus)[i].hcalTotOverPLead();
-	  tau_hcal3x3overplead[tau_count] = (*Taus)[i].hcalMaxOverPLead();
-	  tau_ecalstripsumeoverplead[tau_count] = (*Taus)[i].hcal3x3OverPLead();
-	  tau_bremsrecoveryeoverplead[tau_count] = (*Taus)[i].ecalStripSumEOverPLead();
-	  tau_calocomp[tau_count] = (*Taus)[i].caloComp();
-	  tau_segcomp[tau_count] = (*Taus)[i].segComp();
-	  
-	  tau_disbyisolationmvaraw[tau_count] = (*Taus)[i].tauID("byIsolationMVAraw");
-	  tau_disbyisolationmva2raw[tau_count] = (*Taus)[i].tauID("byIsolationMVA2raw");
-	  tau_againstelectronmva2raw[tau_count] = (*Taus)[i].tauID("againstElectronMVA2raw");
-	  tau_againstelectronmva2category[tau_count] = (*Taus)[i].tauID("againstElectronMVA2category");
-	  tau_againstelectronmva3raw[tau_count] = (*Taus)[i].tauID("againstElectronMVA3raw");
-	  tau_againstelectronmva3category[tau_count] = (*Taus)[i].tauID("againstElectronMVA3category");
+	  tau_e[tau_count]                                        = (*Taus)[i].energy();
+	  tau_px[tau_count]                                       = (*Taus)[i].px();
+	  tau_py[tau_count]                                       = (*Taus)[i].py();
+	  tau_pz[tau_count]                                       = (*Taus)[i].pz();
+	  tau_emfraction[tau_count]                               = (*Taus)[i].emFraction();
+	  tau_newemfraction[tau_count]                            = newEmFraction(&(*Taus)[i]);
+	  tau_hcaltotoverplead[tau_count]                         = (*Taus)[i].hcalTotOverPLead();
+	  tau_hcal3x3overplead[tau_count]                         = (*Taus)[i].hcalMaxOverPLead();
+	  tau_ecalstripsumeoverplead[tau_count]                   = (*Taus)[i].hcal3x3OverPLead();
+	  tau_bremsrecoveryeoverplead[tau_count]                  = (*Taus)[i].ecalStripSumEOverPLead();
+	  tau_calocomp[tau_count]                                 = (*Taus)[i].caloComp();
+	  tau_segcomp[tau_count]                                  = (*Taus)[i].segComp();
+	  tau_disbyisolationmvaraw[tau_count]                     = (*Taus)[i].tauID("byIsolationMVAraw");
+	  tau_disbyisolationmva2raw[tau_count]                    = (*Taus)[i].tauID("byIsolationMVA2raw");
+	  tau_againstelectronmva2raw[tau_count]                   = (*Taus)[i].tauID("againstElectronMVA2raw");
+	  tau_againstelectronmva2category[tau_count]              = (*Taus)[i].tauID("againstElectronMVA2category");
+	  tau_againstelectronmva3raw[tau_count]                   = (*Taus)[i].tauID("againstElectronMVA3raw");
+	  tau_againstelectronmva3category[tau_count]              = (*Taus)[i].tauID("againstElectronMVA3category");
 	  tau_bycombinedisolationdeltabetacorrraw3hits[tau_count] = (*Taus)[i].tauID("byCombinedIsolationDeltaBetaCorrRaw3Hits");
-	  
-	  
+	  tau_signalPFChargedHadrCands_size[tau_count]            = (*Taus)[i].signalPFChargedHadrCands().size(); 	  
+	  tau_signalPFGammaCands_size[tau_count]	          = (*Taus)[i].signalPFGammaCands().size();
+	  tau_genTaudecayMode[tau_count]                          = JetMCTagUtils::genTauDecayMode(*((*Taus)[i].genJet()));
+
 	  SignedImpactParameter3D signed_ip3D;
 	  // std::vector<reco::PFCandidate> leadPFChargedHadrCand_;
 	  // const reco::PFCandidateRef leadPFChargedHadrCand() const;
+
 	  if((*Taus)[i].leadPFChargedHadrCand().isNonnull())
 	    {
 	      tau_leadpfchargedhadrcandecalenergy[tau_count] = (*Taus)[i].leadPFChargedHadrCand()->ecalEnergy();
@@ -2744,8 +2747,8 @@ int RootMaker::AddTaus(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	      tau_ip3dSig[tau_count] = -1.0f;
 	    }
 	  
-	  tau_nprongs[tau_count] = (*Taus)[i].signalPFCands().size();
-	  tau_charge[tau_count] = (*Taus)[i].charge();
+	  tau_nprongs[tau_count]      = (*Taus)[i].signalPFCands().size();
+	  tau_charge[tau_count]       = (*Taus)[i].charge();
 	  tau_chargedbegin[tau_count] = tau_charged_count;
 	  
 	  // matching with the jet collection can be done offline based on these information:
@@ -2761,7 +2764,7 @@ int RootMaker::AddTaus(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  tau_isolationneutralspt[tau_count] = 0.;
 	  tau_isolationgammanum[tau_count] = (*Taus)[i].isolationPFGammaCands().size();
 	  tau_isolationgammapt[tau_count] = (*Taus)[i].isolationPFGammaCandsEtSum();
-	  
+
 	  for(unsigned n = 0 ; n < (*Taus)[i].isolationPFCands().size() ; n++)
 	    {
 	      PFCandidateRef isocand = (*Taus)[i].isolationPFCands()[n];
@@ -2829,6 +2832,8 @@ int RootMaker::AddTaus(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       // diTau Vertex Study
       reco::Vertex thePV;
       bool tau_vtxFound = false;
+
+      //to make sure if vertex is found, else break
       if(vertexes->size() > 0) 
 	{
 	  for(size_t ivtx = 0; ivtx < vertexes->size(); ivtx++){
@@ -2850,7 +2855,7 @@ int RootMaker::AddTaus(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	ditau_VtxXErr = thePV.xError();
 	ditau_VtxYErr = thePV.yError();
 	ditau_VtxZErr = thePV.zError();
-
+	
 	// loop over ditau pair
 	for (unsigned indxTau1 =0; indxTau1 < tauIndexSelection.size() ; indxTau1++) 
 	  {
@@ -2865,7 +2870,7 @@ int RootMaker::AddTaus(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 		pat::Tau aTauLeg2( (*Taus)[indxTau2]);
 		ditau_leg1_index[ditau_Index] = indxTau1;
 		ditau_leg2_index[ditau_Index] = indxTau2;
-
+		
 		ditau_reFitVtxX[ditau_Index]       = -99;  
 		ditau_reFitVtxY[ditau_Index]       = -99;
 		ditau_reFitVtxZ[ditau_Index]       = -99;
