@@ -1,0 +1,4 @@
+
+/bin/rm -f lib/slc5_amd64_gcc462/libRecoParticleFlowPFProducer.so
+/bin/rm -f lib/slc5_amd64_gcc462/pluginRecoParticleFlowPFIsoReader.so lib/slc5_amd64_gcc462/RecoParticleFlowPFIsoReader.edmplugin
+/bin/rm -f lib/slc5_amd64_gcc462/pluginRecoParticleFlowPFSuperClusterReader.so lib/slc5_amd64_gcc462/RecoParticleFlowPFSuperClusterReader.edmplugin

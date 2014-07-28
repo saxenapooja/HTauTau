@@ -1,0 +1,5 @@
+tmp/slc5_amd64_gcc462/src/DataFormats/Common/test/DataFrame_t/DataFrame_t.o: \
+ src/DataFormats/Common/test/DataFrame_t.cpp \
+ src/DataFormats/Common/interface/DataFrame.h \
+ src/DataFormats/Common/interface/DataFrameContainer.h \
+

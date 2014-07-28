@@ -1,0 +1,2 @@
+01:/bin/rm -f lib/slc5_amd64_gcc462/pluginRecoParticleFlowBenchmarkCapabilities.so lib/slc5_amd64_gcc462/RecoParticleFlowBenchmarkCapabilities.edmplugin
+90:edmPluginRefresh lib/slc5_amd64_gcc462

@@ -1,0 +1,4 @@
+tmp/slc5_amd64_gcc462/src/DataFormats/Common/test/exTrie/exTrie.o: \
+ src/DataFormats/Common/test/exTrie.cpp \
+ src/DataFormats/Common/interface/Trie.h \
+

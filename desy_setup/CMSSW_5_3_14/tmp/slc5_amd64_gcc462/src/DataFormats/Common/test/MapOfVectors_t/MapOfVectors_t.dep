@@ -1,0 +1,4 @@
+tmp/slc5_amd64_gcc462/src/DataFormats/Common/test/MapOfVectors_t/MapOfVectors_t.o: \
+ src/DataFormats/Common/test/MapOfVectors_t.cpp \
+ src/DataFormats/Common/interface/MapOfVectors.h \
+

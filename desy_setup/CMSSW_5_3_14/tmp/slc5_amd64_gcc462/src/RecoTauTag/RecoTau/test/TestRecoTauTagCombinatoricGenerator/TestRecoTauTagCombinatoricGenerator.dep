@@ -1,0 +1,4 @@
+tmp/slc5_amd64_gcc462/src/RecoTauTag/RecoTau/test/TestRecoTauTagCombinatoricGenerator/CombinatoricGenerator_t.cppunit.o: \
+ src/RecoTauTag/RecoTau/test/CombinatoricGenerator_t.cppunit.cc \
+ src/RecoTauTag/RecoTau/interface/CombinatoricGenerator.h \
+
