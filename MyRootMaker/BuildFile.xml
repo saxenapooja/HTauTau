@@ -11,7 +11,9 @@
 <use   name="FWCore/MessageService"/>
 <use   name="FWCore/Utilities"/>
 <use   name="PhysicsTools/PatUtils"/>
+<use   name="PhysicsTools/IsolationUtils"/>
 <use   name="PhysicsTools/Utilities"/>
+<use   name="PhysicsTools/JetMCUtils"/>
 <use   name="CommonTools/UtilAlgos"/>
 <use   name="JetMETCorrections/Objects"/>
 <use   name="HLTrigger/HLTcore"/>
@@ -29,6 +31,7 @@
 <use   name="RecoVertex/KinematicFitPrimitives"/>
 <use   name="clhep"/>
 <use   name="RecoVertex/AdaptiveVertexFit"/>
+
 <use   name="root"/>
 <flags   EDM_PLUGIN="1"/>
 <export>

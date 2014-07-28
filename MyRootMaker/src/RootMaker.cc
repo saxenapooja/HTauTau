@@ -2595,7 +2595,9 @@ double newEmFraction(const pat::Tau* a)
 {
   double EcalE = 0;
   double E = 0;
-  for (reco::PFCandidateRefVector::const_iterator cand = a->signalPFCands().begin(); cand != a->signalPFCands().end(); ++cand) {
+  
+  //for (reco::PFCandidateRefVector::const_iterator cand = a->signalPFCands().begin(); cand != a->signalPFCands().end(); ++cand) {
+  for (std::vector<reco::PFCandidatePtr>::const_iterator cand = a->signalPFCands().begin(); cand != a->signalPFCands().end(); ++cand) {
     EcalE += (*cand)->ecalEnergy();
     E += (*cand)->ecalEnergy();
     E += (*cand)->hcalEnergy();
@@ -2767,7 +2769,8 @@ int RootMaker::AddTaus(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 	  for(unsigned n = 0 ; n < (*Taus)[i].isolationPFCands().size() ; n++)
 	    {
-	      PFCandidateRef isocand = (*Taus)[i].isolationPFCands()[n];
+	      //PFCandidateRef isocand = (*Taus)[i].isolationPFCands()[n];
+	      PFCandidatePtr isocand = (*Taus)[i].isolationPFCands()[n];
 	      if(isocand->charge() == 0)
 		{
 		  tau_isolationneutralsnum[tau_count]++;
@@ -2786,7 +2789,8 @@ int RootMaker::AddTaus(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  TrackRef track;
 	  for(unsigned n = 0 ; n < (*Taus)[i].signalPFCands().size() ; n++)
 	    {
-	      PFCandidateRef cand = (*Taus)[i].signalPFCands()[n];
+	      //PFCandidateRef cand = (*Taus)[i].signalPFCands()[n];
+	      PFCandidatePtr cand = (*Taus)[i].signalPFCands()[n];
 	      track = cand->trackRef();
 	      if(!track.isNull())
 		{
@@ -2906,8 +2910,10 @@ int RootMaker::AddTaus(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 		ditau_leg2_Z_OPV[ditau_Index]      = -99;
 		
 		// Get signal tracks from DiTaus
-		const reco::PFCandidateRefVector & candsLeg1 = aTauLeg1.signalPFChargedHadrCands();
-		for (reco::PFCandidateRefVector::const_iterator iter = candsLeg1.begin(); iter!=candsLeg1.end(); iter++)
+		//const reco::PFCandidateRefVector & candsLeg1 = aTauLeg1.signalPFChargedHadrCands();
+		const std::vector<reco::PFCandidatePtr> & candsLeg1 = aTauLeg1.signalPFChargedHadrCands();
+		//for (reco::PFCandidateRefVector::const_iterator iter = candsLeg1.begin(); iter!=candsLeg1.end(); iter++)
+		for (std::vector<reco::PFCandidatePtr>::const_iterator iter = candsLeg1.begin(); iter!=candsLeg1.end(); iter++)
 		  {
 		    if(iter->get()->trackRef().isNonnull()) 
 		      SignalTracks.push_back(reco::TrackBaseRef((*iter)->trackRef()));
@@ -2918,8 +2924,10 @@ int RootMaker::AddTaus(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 		  }
 		
 		// Get tracks form PFTau daugthers of tauLeg2 
-		const reco::PFCandidateRefVector & candsLeg2 = aTauLeg2.signalPFChargedHadrCands();
-		for (reco::PFCandidateRefVector::const_iterator iter = candsLeg2.begin(); iter!=candsLeg2.end(); iter++)
+		//const reco::PFCandidateRefVector & candsLeg2 = aTauLeg2.signalPFChargedHadrCands();
+		const std::vector<reco::PFCandidatePtr> & candsLeg2 = aTauLeg2.signalPFChargedHadrCands();
+		//for (reco::PFCandidateRefVector::const_iterator iter = candsLeg2.begin(); iter!=candsLeg2.end(); iter++)
+		for (std::vector<reco::PFCandidatePtr>::const_iterator iter = candsLeg2.begin(); iter!=candsLeg2.end(); iter++)
 		  {
 		    if(iter->get()->trackRef().isNonnull()) 
 		      SignalTracks.push_back(reco::TrackBaseRef((*iter)->trackRef()));

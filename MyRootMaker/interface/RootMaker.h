@@ -807,6 +807,10 @@ class RootMaker : public edm::EDAnalyzer{
   UChar_t tau_charged_npixelhits[M_taumaxcount*10];
   UChar_t tau_charged_npixellayers[M_taumaxcount*10];
   UChar_t tau_charged_nstriplayers[M_taumaxcount*10];
+  Int_t tau_signalPFChargedHadrCands_size[M_taumaxcount];
+  Int_t tau_signalPFGammaCands_size[M_taumaxcount];
+  string tau_genTaudecayMode[M_taumaxcount];
+
 
   UInt_t mutautaupair_count;
   Float_t mutautaupair_leg1_px[M_mutautaupairmaxcount];
