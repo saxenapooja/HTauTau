@@ -1,5 +1,5 @@
 //
-// $Id: PATTauProducer.cc,v 1.37 2012/05/20 20:12:25 rwolf Exp $
+// $Id: PATTauProducer.cc,v 1.37.8.3 2013/06/14 07:12:12 veelken Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATTauProducer.h"
@@ -14,11 +14,15 @@
 #include "DataFormats/TauReco/interface/PFTauDiscriminator.h"
 #include "DataFormats/TauReco/interface/CaloTau.h"
 #include "DataFormats/TauReco/interface/CaloTauDiscriminator.h"
+#include "DataFormats/TauReco/interface/PFTauTransverseImpactParameterAssociation.h"
+#include "DataFormats/TauReco/interface/PFTauTransverseImpactParameter.h"
+#include "DataFormats/TauReco/interface/PFTauTransverseImpactParameterFwd.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/JetReco/interface/GenJetCollection.h"
 
 #include "DataFormats/PatCandidates/interface/TauJetCorrFactors.h"
+#include "DataFormats/PatCandidates/interface/TauPFSpecific.h"
 
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
@@ -34,6 +38,7 @@ PATTauProducer::PATTauProducer(const edm::ParameterSet & iConfig):
 {
   // initialize the configurables
   tauSrc_ = iConfig.getParameter<edm::InputTag>( "tauSource" );
+  tauTransverseImpactParameterSrc_ = iConfig.getParameter<edm::InputTag>( "tauTransverseImpactParameterSource" );
   embedIsolationTracks_ = iConfig.getParameter<bool>( "embedIsolationTracks" );
   embedLeadTrack_ = iConfig.getParameter<bool>( "embedLeadTrack" );
   embedSignalTracks_ = iConfig.getParameter<bool>( "embedSignalTracks" );
@@ -65,36 +70,26 @@ PATTauProducer::PATTauProducer(const edm::ParameterSet & iConfig):
   }
   addTauJetCorrFactors_ = iConfig.getParameter<bool>( "addTauJetCorrFactors" );
   tauJetCorrFactorsSrc_ = iConfig.getParameter<std::vector<edm::InputTag> >( "tauJetCorrFactorsSource" );
-
-  
   // tau ID configurables
   addTauID_ = iConfig.getParameter<bool>( "addTauID" );
-  
-  
   if ( addTauID_ ) {
-    
     // it might be a single tau ID
     if (iConfig.existsAs<edm::InputTag>("tauIDSource")) {
       tauIDSrcs_.push_back(NameTag("", iConfig.getParameter<edm::InputTag>("tauIDSource")));
     }
-    
     // or there might be many of them
     if (iConfig.existsAs<edm::ParameterSet>("tauIDSources")) {
-
       // please don't configure me twice
       if (!tauIDSrcs_.empty()){
 	throw cms::Exception("Configuration") << "PATTauProducer: you can't specify both 'tauIDSource' and 'tauIDSources'\n";
       }
-
       // read the different tau ID names
-      edm::ParameterSet         idps = iConfig.getParameter<edm::ParameterSet>("tauIDSources");
-      std::vector<std::string> names =    idps.getParameterNamesForType<edm::InputTag>();
-      
+      edm::ParameterSet idps = iConfig.getParameter<edm::ParameterSet>("tauIDSources");
+      std::vector<std::string> names = idps.getParameterNamesForType<edm::InputTag>();
       for (std::vector<std::string>::const_iterator it = names.begin(), ed = names.end(); it != ed; ++it) {
-	tauIDSrcs_.push_back( NameTag(*it, idps.getParameter<edm::InputTag>(*it)));
+	tauIDSrcs_.push_back(NameTag(*it, idps.getParameter<edm::InputTag>(*it)));
       }
     }
-
     // but in any case at least once
     if (tauIDSrcs_.empty()) throw cms::Exception("Configuration") <<
       "PATTauProducer: id addTauID is true, you must specify either:\n" <<
@@ -322,12 +317,6 @@ void PATTauProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
     if ( addTauID_ ) {
       std::vector<pat::Tau::IdPair> ids(tauIDSrcs_.size());
       for ( size_t i = 0; i < tauIDSrcs_.size(); ++i ) {
-	edm::Handle<reco::CaloTauDiscriminator> caloTauIdDiscr;
-	iEvent.getByLabel(tauIDSrcs_[i].second, caloTauIdDiscr);
-
-	edm::Handle<reco::PFTauDiscriminator> pfTauIdDiscr;
-	iEvent.getByLabel(tauIDSrcs_[i].second, pfTauIdDiscr);
-	
 	if ( typeid(*tausRef) == typeid(reco::PFTau) ) {
 	  //std::cout << "filling PFTauDiscriminator '" << tauIDSrcs_[i].first << "' into pat::Tau object..." << std::endl;
 	  edm::Handle<reco::PFTauCollection> pfTauCollection; 
@@ -365,6 +354,32 @@ void PATTauProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
       reco::PFTauRef pfTauRef(pfTaus, idx);
 
       aTau.setDecayMode(pfTauRef->decayMode());
+    }
+
+    // extraction of tau lifetime information
+    // (only available for PFTaus)
+    if ( aTau.isPFTau() && tauTransverseImpactParameterSrc_.label() != "" ) {
+      edm::Handle<reco::PFTauCollection> pfTaus;
+      iEvent.getByLabel(tauSrc_, pfTaus);
+      reco::PFTauRef pfTauRef(pfTaus, idx);
+
+      typedef edm::AssociationVector<reco::PFTauRefProd, std::vector<reco::PFTauTransverseImpactParameterRef> > PFTauTIPAssociationByRef;
+      edm::Handle<PFTauTIPAssociationByRef> tauLifetimeInfos;
+      iEvent.getByLabel(tauTransverseImpactParameterSrc_, tauLifetimeInfos);
+      const reco::PFTauTransverseImpactParameter& tauLifetimeInfo = *(*tauLifetimeInfos)[pfTauRef];
+      pat::tau::TauPFSpecific& aTauPFSpecific = aTau.pfSpecific_[0];
+      aTauPFSpecific.dxy_PCA_ = tauLifetimeInfo.dxy_PCA();
+      aTauPFSpecific.dxy_ = tauLifetimeInfo.dxy();
+      aTauPFSpecific.dxy_error_ = tauLifetimeInfo.dxy_error();
+      aTauPFSpecific.pv_ = tauLifetimeInfo.primaryVertex();
+      aTauPFSpecific.pvPos_ = tauLifetimeInfo.primaryVertexPos();
+      aTauPFSpecific.pvCov_ = tauLifetimeInfo.primaryVertexCov();
+      aTauPFSpecific.hasSV_ = tauLifetimeInfo.hasSecondaryVertex();
+      aTauPFSpecific.flightLength_ = tauLifetimeInfo.flightLength();
+      aTauPFSpecific.flightLengthSig_ = tauLifetimeInfo.flightLengthSig();
+      aTauPFSpecific.sv_ = tauLifetimeInfo.secondaryVertex();
+      aTauPFSpecific.svPos_ = tauLifetimeInfo.secondaryVertexPos();
+      aTauPFSpecific.svCov_ = tauLifetimeInfo.secondaryVertexCov();
     }
 
     // Isolation
@@ -422,6 +437,7 @@ void PATTauProducer::fillDescriptions(edm::ConfigurationDescriptions & descripti
 
   // input source 
   iDesc.add<edm::InputTag>("tauSource", edm::InputTag())->setComment("input collection");
+  iDesc.add<edm::InputTag>("tauTransverseImpactParameterSource", edm::InputTag())->setComment("input tau lifetime information");
 
   // embedding
   iDesc.add<bool>("embedIsolationTracks", false)->setComment("embed external isolation tracks");
