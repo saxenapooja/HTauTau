@@ -4,7 +4,7 @@ For Higgs to TauTau CP study
 * Find the MyRootMaker for /nfs/dust/cms/user/pooja/scratch/h2tautau/CMSSW___*/src/MyRootMaker/MyRootMaker/ as seperate package as 'MyRootMaker'. Should be integrated in place.
 * Recipee to switch to CMSSW_5_3_14 (in NAF)
 
-Steps followed are:
+@@@@@  Steps followed are:
 
 a.) make CMSSW_5_2_14/src and copy the code from old release
    also delete the RecoTauTag module
@@ -39,4 +39,3 @@ e.) you might get error of missing
 
 f.) complie and should work
 
-- moved the setup of CMSSW_5_3_14 to github
