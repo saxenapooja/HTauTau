@@ -153,6 +153,7 @@ using namespace reco;
 #define M_svmax 5
 typedef ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<double>,ROOT::Math::DefaultCoordinateSystemTag> Point3D;
 
+bool doDebug = false;
 class RootMaker : public edm::EDAnalyzer{ 
  public:
   explicit RootMaker( const edm::ParameterSet& iConfig );
@@ -762,13 +763,19 @@ class RootMaker : public edm::EDAnalyzer{
   UInt_t tau_nprongs[M_taumaxcount];
   Int_t tau_charge[M_taumaxcount];
   ULong64_t tau_dishps[M_taumaxcount];
-  Float_t tau_disbyisolationmvaraw[M_taumaxcount];
-  Float_t tau_disbyisolationmva2raw[M_taumaxcount];
-  Float_t tau_againstelectronmva2raw[M_taumaxcount];
-  Float_t tau_againstelectronmva2category[M_taumaxcount];
-  Float_t tau_againstelectronmva3raw[M_taumaxcount];
-  Float_t tau_againstelectronmva3category[M_taumaxcount];
+
+  Float_t tau_againstelectronmva5raw[M_taumaxcount];
+  Float_t tau_byIsolationmva3newDMwoLTraw[M_taumaxcount];
+  Float_t tau_byIsolationmva3newDMwLTraw[M_taumaxcount];
+  Float_t tau_againstelectronmva5[M_taumaxcount];
+  Float_t tau_againstelectronVLoosemva5[M_taumaxcount];
+  Float_t tau_againstelectronLoosemva5[M_taumaxcount];
+  Float_t tau_againstelectronMediummva5[M_taumaxcount];
+  Float_t tau_againstelectronTightmva5[M_taumaxcount];
+  Float_t tau_againstelectronDeadECAL[M_taumaxcount];
+  Float_t tau_againstelectronmva5category[M_taumaxcount];
   Float_t tau_bycombinedisolationdeltabetacorrraw3hits[M_taumaxcount];
+  
   Float_t tau_emfraction[M_taumaxcount];
   Float_t tau_newemfraction[M_taumaxcount];
   Float_t tau_hcaltotoverplead[M_taumaxcount];
